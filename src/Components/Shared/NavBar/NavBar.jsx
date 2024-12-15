@@ -1,17 +1,20 @@
 import React from "react";
+import { Link, NavLink } from "react-router-dom";
 
 const NavBar = () => {
-    const navLinks=<>
-    <li>
-                <a>Item 1</a>
-              </li>
-              <li>
-                <a>Item-2</a>
-              </li>
-              <li>
-                <a>Item 3</a>
-              </li>
+  const navLinks = (
+    <>
+      <li>
+        <NavLink to={"/"}>Home</NavLink>
+      </li>
+      <li>
+        <NavLink to={"/about"}>About us</NavLink>
+      </li>
+      <li>
+        <NavLink to={"/contact"}>Contact us</NavLink>
+      </li>
     </>
+  );
   return (
     <>
       <div className="navbar bg-base-100">
@@ -43,12 +46,11 @@ const NavBar = () => {
           <a className="btn btn-ghost text-xl">daisyUI</a>
         </div>
         <div className="navbar-center hidden lg:flex">
-          <ul className="menu menu-horizontal px-1">
-            {navLinks}
-          </ul>
+          <ul className="menu menu-horizontal px-1">{navLinks}</ul>
         </div>
         <div className="navbar-end">
-          <a className="btn">Button</a>
+          <Link to={'/login'} className="btn px-10 bg-gray-600 text-white">Login</Link>
+          <Link to={'/registration'}className="btn ml-2 bg-gray-600 text-white">Registration</Link>
         </div>
       </div>
     </>

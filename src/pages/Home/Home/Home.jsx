@@ -1,9 +1,14 @@
 import React from 'react';
+import Banner from './Home/Banner';
+import Featured from './Home/Featured';
+import Accordian from './Home/Accordian';
 
 const Home = () => {
     return (
         <div>
-            <h2 className='text-center text-red-600 text-2xl font-bold'>This is home page</h2>
+            <Banner></Banner>
+            <Featured></Featured>
+            <Accordian></Accordian>
         </div>
     );
 };
