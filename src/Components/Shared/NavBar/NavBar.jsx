@@ -1,7 +1,10 @@
 import React from "react";
 import { Link, NavLink } from "react-router-dom";
+import UseAuth from "../../../Hooks/UseAuth";
+import UserDropDown from "../../userDropDown";
 
 const NavBar = () => {
+  const { user } = UseAuth();
   const navLinks = (
     <>
       <li>
@@ -43,14 +46,27 @@ const NavBar = () => {
               {navLinks}
             </ul>
           </div>
-          <a className="btn btn-ghost text-xl">daisyUI</a>
+          <Link to={'/'} className="lg:block hidden btn btn-ghost text-xl">Gadget Shop</Link>
         </div>
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal px-1">{navLinks}</ul>
         </div>
         <div className="navbar-end">
-          <Link to={'/login'} className="btn px-10 bg-gray-600 text-white">Login</Link>
-          <Link to={'/registration'}className="btn ml-2 bg-gray-600 text-white">Registration</Link>
+          {user ? (
+            <UserDropDown></UserDropDown>
+          ) : (
+            <div>
+              <Link to={"/login"} className="btn px-10 bg-gray-600 text-white">
+                Login
+              </Link>
+              <Link
+                to={"/registration"}
+                className="btn ml-2 bg-gray-600 text-white"
+              >
+                Registration
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </>
