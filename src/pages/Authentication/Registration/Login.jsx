@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
 import { Link, useNavigate } from "react-router-dom";
 import UseAuth from "../../../Hooks/UseAuth";
-
+import { toast } from "sonner";
 
 const Login = () => {
   const {
@@ -11,27 +11,35 @@ const Login = () => {
 
     formState: { errors },
   } = useForm();
- 
+
+  const navigate = useNavigate();
   const { login, googleLogin, user, loading } = UseAuth();
-  const handleGoogleLogin = () => {
-    googleLogin();
-    navigate('/');
+  const handleGoogleLogin = async () => {
+    await googleLogin();
+    toast.success("User successfully logged in!");
+    navigate("/");
   };
-const navigate = useNavigate()
-  const onSubmit = (data) => {
-    const { email, password, firstName, lastName } = data;
-    login(email, password, firstName, lastName)
-      .then(() => {
-        // const users= auth.login;
-        // updateProfile(users,{
-        //   displayName:lastName
-        // })
-        console.log(user);
-        navigate('/');
-      })
-      .catch((error) => {
-        console.log(error.message);
-      });
+  const onSubmit = async (data) => {
+    try{
+      const { email, password, firstName, lastName } = data;
+      const minDelay = 1000;
+      const startTime = Date.now();
+      toast.loading("User logging in...");
+      const res = await login(email, password, firstName, lastName);
+      const passed = Date.now() - startTime;
+      if (passed < minDelay) {
+        await new Promise((resolve) => setTimeout(resolve, minDelay - passed));
+      }
+      toast.dismiss();
+      toast.success("User successfully logged in!");
+      console.log(res);
+      navigate("/");
+    }
+    catch(error){
+      toast.dismiss()
+      toast.error(`${error.message}`)
+      console.log(error)
+    }
   };
   return (
     <div>
@@ -42,7 +50,6 @@ const navigate = useNavigate()
               onSubmit={handleSubmit(onSubmit)}
               className="card-body w-full"
             >
-              
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">Email</span>
@@ -90,7 +97,10 @@ const navigate = useNavigate()
             <div>
               <p className="text-center my-2">
                 New to the site?{" "}
-                <Link className="text-blue-500 hover:underline" to={"/registration"}>
+                <Link
+                  className="text-blue-500 hover:underline"
+                  to={"/registration"}
+                >
                   Register
                 </Link>
               </p>

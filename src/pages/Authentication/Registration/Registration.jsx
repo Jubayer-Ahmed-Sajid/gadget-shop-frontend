@@ -1,10 +1,9 @@
 import { useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import UseAuth from "../../../Hooks/UseAuth";
-import { updateProfile } from "firebase/auth";
 import axios from "axios";
-
+import { toast } from "sonner";
 const Registration = () => {
   const {
     register,
@@ -14,25 +13,82 @@ const Registration = () => {
   } = useForm();
 
   const { createUser, googleLogin } = UseAuth();
-  const handleGoogleLogin = () => {
-    googleLogin();
+  const navigate = useNavigate();
+  const handleGoogleLogin = async () => {
+    try {
+      const data = await googleLogin();
+
+      const email = data?.user?.email;
+      const photoURL = data?.user?.photoURL;
+      const lastName = data?.user?.displayName;
+      const role = "buyer";
+      const whishList = [];
+      const status = "approved";
+      const userDetails = {
+        email,
+        photoURL,
+        lastName,
+        role,
+        whishList,
+        status,
+      };
+
+      const minDelay = 1000;
+      const startTime = Date.now();
+      toast.loading("User is creating...");
+      const userData = await axios.post(
+        "http://localhost:5000/users",
+        userDetails
+      );
+      const passed = Date.now() - startTime;
+      if (passed < minDelay) {
+        await new Promise((resolve) => setTimeout(resolve, minDelay - passed));
+      }
+      console.log(userDetails);
+      toast.dismiss();
+      toast.success("User successfully created!!");
+      navigate("/");
+    } catch (error) {
+      toast.dismiss();
+      toast.error(`${error.message}`);
+    }
   };
 
-  const onSubmit = (data) => {
-    const { email, password, firstName, lastName, role } = data;
-    const whishList = [];
-    const status = role === "buyer" ? "approved" : "pending";
-    const userDetails = { email, lastName, role, status, whishList };
+  const onSubmit = async (data) => {
+    try {
+      // loading time start
+      const minDelay = 1000;
+      const startTime = Date.now();
+      // loading starts
+      toast.loading("Creating user...");
+      const { email, password, firstName, lastName, role } = data;
+      const whishList = [];
+      const status = role === "buyer" ? "approved" : "pending";
+      const userDetails = { email, lastName, role, status, whishList };
 
-    createUser(email, password, firstName, lastName)
-      .then(async () => {
-        axios.post("http://localhost:5000/users", userDetails).then((data) => {
-          console.log(data?.data);
-        });
-      })
-      .catch((error) => {
-        console.log(error.message);
-      });
+      await createUser(email, password, firstName, lastName);
+      const userData = await axios.post(
+        "http://localhost:5000/users",
+        userDetails
+      );
+      const passed = Date.now() - startTime;
+
+      // toast continues even if data fetched earlier
+
+      if (passed < minDelay) {
+        await new Promise((resolve) => setTimeout(resolve, minDelay - passed));
+      }
+      console.log(userData);
+      // loading toast dismissed
+      toast.dismiss();
+
+      // success toast
+      toast.success("User successfully created");
+      navigate("/");
+    } catch (error) {
+      toast.dismiss();
+      toast.error(error?.message) || "Failed to create user. Please try again.";
+    }
   };
   return (
     <div>
