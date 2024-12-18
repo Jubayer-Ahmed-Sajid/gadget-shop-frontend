@@ -44,7 +44,7 @@ const Registration = () => {
       if (passed < minDelay) {
         await new Promise((resolve) => setTimeout(resolve, minDelay - passed));
       }
-      console.log(userDetails);
+     
       toast.dismiss();
       toast.success("User successfully created!!");
       navigate("/");

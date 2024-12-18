@@ -1,41 +1,60 @@
 import { useForm } from "react-hook-form";
 import UseAuth from "../../../Hooks/UseAuth";
 import axios from "axios";
+import { toast } from "sonner";
 
 const AddProduct = () => {
   const {
     register,
     handleSubmit,
-
+    reset,
     formState: { errors },
   } = useForm();
   const { user } = UseAuth();
-  const onSubmit = (data) => {
-    const { title, brand, category, price, quantity, description, imageURL } =
-      data;
-    const fl_quantity = parseFloat(quantity);
-    const fl_price = parseFloat(price);
-    const email = user.email;
-    const productDetails = {
-      email,
-      title,
-      brand,
-      category,
-      fl_price,
-      fl_quantity,
-      description,
-      imageURL,
-    };
-    const token = localStorage.getItem("access-token");
-    axios.post('http://localhost:5000/add-product',productDetails,{
-        headers:{
-            Authorization: `Bearer ${token}`
+  const onSubmit = async (data) => {
+    try {
+      const minDelay = 1000;
+      const startTime = Date.now();
+
+      toast.loading("Product is adding ...");
+      const { title, brand, category, price, quantity, description, imageURL } =
+        data;
+      const fl_quantity = parseFloat(quantity);
+      const fl_price = parseFloat(price);
+      const email = user.email;
+      const productDetails = {
+        email,
+        title,
+        brand,
+        category,
+        fl_price,
+        fl_quantity,
+        description,
+        imageURL,
+      };
+      const token = localStorage.getItem("access-token");
+      const res = await axios.post(
+        "http://localhost:5000/add-product",
+        productDetails,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-    })
-    .then((res)=>{
-        console.log(res.data);
-    })
-   
+      );
+      const passed = Date.now() - startTime;
+      if (passed < minDelay) {
+        await new Promise((resolve) => setTimeout(resolve, minDelay - passed));
+      }
+      toast.dismiss();
+      reset(); 
+      toast.success("Product is successfully added!");
+     
+    } catch (error) {
+      toast.dismiss();
+      toast.error(`${error.message}`);
+      
+    }
   };
   return (
     <div>
